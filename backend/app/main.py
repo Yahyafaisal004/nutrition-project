@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.routers import ingredients, nutrition, nutrients
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import dishes
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -14,7 +15,7 @@ app.add_middleware(
 app.include_router(ingredients.router, prefix="/ingredients")
 app.include_router(nutrition.router, prefix="/nutrition")
 app.include_router(nutrients.router, prefix="/nutrients")
-
+app.include_router(dishes.router, prefix="/dishes")
 @app.get("/")
 def root():
     return {"message": "Nutrition API running"}

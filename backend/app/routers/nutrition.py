@@ -30,7 +30,6 @@ def calculate_nutrition(data: dict):
     ingredient_ids = [item["id"] for item in items]
     grams_map = {item["id"]: item["grams"] for item in items}
 
-    # Query
     query = """
         SELECT 
             inut.ingredient_id, 
@@ -67,7 +66,6 @@ def calculate_nutrition(data: dict):
         contribution = value * grams / 100
         nid = row["nutrient_id"]
 
-        # ---- TOTALS ----
         if nid not in totals:
             totals[nid] = {
                 "nutrient_id": nid,
@@ -78,7 +76,6 @@ def calculate_nutrition(data: dict):
 
         totals[nid]["value"] = round(totals[nid]["value"] + contribution, 3)
 
-        # ---- PER INGREDIENT ----
         if ing_id not in by_ingredient:
             by_ingredient[ing_id] = {
                 "ingredient_id": ing_id,
@@ -112,7 +109,11 @@ def calculate_dish_nutrition(data: dict):
     grams = data.get("grams")
     nutrient_ids = data.get("nutrient_ids", None)
 
-    # Query
+    if not dish_id or not grams or grams <= 0:
+        cursor.close()
+        conn.close()
+        return {"error": "Invalid dish_id or grams"}
+
     query = """
         SELECT dnut.nutrient_id, dnut.value_per_100g,
                n.name, n.unit
@@ -139,7 +140,7 @@ def calculate_dish_nutrition(data: dict):
 
         results.append({
             "nutrient_id": row["nutrient_id"],
-            "name": row["nutrient_name"],
+            "name": row["name"],
             "unit": row["unit"],
             "value": round(value, 3)
         })

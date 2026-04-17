@@ -2,10 +2,10 @@ import pandas as pd
 import mysql.connector
 import os
 from dotenv import load_dotenv
+import os
 
-load_dotenv()
+load_dotenv(dotenv_path="/Users/yahyafaisal/Library/recipe_nutrition_system/backend/.env")
 
-# ---------- CONFIG ----------
 DB_CONFIG = {
     "host": os.getenv("host"),
     "user": os.getenv("user"),
@@ -13,19 +13,15 @@ DB_CONFIG = {
     "database": os.getenv("database"),
 }
 
-CSV_PATH = "ingredients.csv"   # update path if needed
+CSV_PATH = "ingredients.csv"
 
-# ---------- CONNECT ----------
 conn = mysql.connector.connect(**DB_CONFIG)
 cursor = conn.cursor()
 
-# ---------- LOAD CSV ----------
 df = pd.read_csv(CSV_PATH)
 
-# Clean column names
 df.columns = df.columns.str.strip()
 
-# Identify columns
 name_col = "food"
 
 nutrient_cols = [
@@ -33,7 +29,6 @@ nutrient_cols = [
     if not c.startswith("Unnamed") and c != name_col
 ]
 
-# ---------- HELPER FUNCTIONS ----------
 
 def infer_unit(nutrient_name):
     name = nutrient_name.lower()
@@ -73,16 +68,14 @@ def get_or_create_ingredient(name):
     )
     return cursor.lastrowid
 
-# ---------- STEP 1: INSERT NUTRIENTS ----------
 print("Inserting nutrients...")
 
 nutrient_map = {}
 for col in nutrient_cols:
-    clean_name = col.strip().title()   # normalize names
+    clean_name = col.strip().title()   
     nutrient_id = get_or_create_nutrient(clean_name)
-    nutrient_map[col] = nutrient_id   # map original → id
+    nutrient_map[col] = nutrient_id 
 
-# ---------- STEP 2: INSERT INGREDIENTS + VALUES ----------
 print("Inserting ingredients and mappings...")
 
 for _, row in df.iterrows():
@@ -108,11 +101,9 @@ for _, row in df.iterrows():
             ON DUPLICATE KEY UPDATE value_per_100g = VALUES(value_per_100g)
         """, (ingredient_id, nutrient_id, float(value)))
 
-# ---------- FINAL COMMIT ----------
 conn.commit()
 
 print("Done! Data inserted successfully.")
 
-# ---------- CLOSE ----------
 cursor.close()
 conn.close()

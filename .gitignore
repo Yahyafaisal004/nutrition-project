@@ -1,16 +1,22 @@
+# Frontend (you don't want to push)
+frontend/
+
+# Datasets
+*.csv
+database/ingestion/*.csv
+
 # Node
 node_modules/
-frontend/node_modules/
-frontend/build/
 
 # Python
 __pycache__/
 *.pyc
+venv/
+
+# Env
 .env
 
-# OS
+# OS / IDE
 .DS_Store
-
-# IDE
 .cursor/
 .vscode/
