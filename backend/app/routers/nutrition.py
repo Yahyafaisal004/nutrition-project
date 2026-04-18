@@ -133,6 +133,11 @@ def calculate_dish_nutrition(data: dict):
     cursor.execute(query, params)
     rows = cursor.fetchall()
 
+    if not rows:
+        cursor.close()
+        conn.close()
+        return {"error": "No nutrient data found for the selected dish"}
+
     results = []
 
     for row in rows:
