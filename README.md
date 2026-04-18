@@ -2,84 +2,72 @@
 
 ## Overview
 
-A backend-focused system to compute nutritional values of food using standard **per 100g composition data**.
-Supports both ingredient-based calculations and predefined dishes.
+A backend system to compute nutritional values of foods using standardized **per-100g composition data**.
+Supports both ingredient-level aggregation and predefined dish-based calculations.
 
 ---
 
-## Features
+## Key Features
 
-### Ingredient Mode (Completed)
+### Ingredient Mode
 
-* Search ingredients (`/ingredients/search`)
-* Add multiple ingredients with grams
-* Compute:
+* Search and select multiple ingredients
 
-  * Total nutrients
-  * Per-ingredient contribution
+* Compute total nutrition using weighted aggregation:
+
+  total = Σ(value_per_100g × grams / 100)
+
+* Returns both total values and per-ingredient contributions
 
 ---
 
-### Dish Mode (Partially Implemented)
+### Dish Mode
 
-* Endpoint: `/nutrition/dishes`
-* Nutrient scaling based on grams
-* Pending:
+* Search predefined dishes
+* Compute scaled nutrition based on input grams
+* Optimized for fast lookup and calculation
 
-  * Dish data ingestion
-  * Search endpoint (`/dishes/search`)
+---
+
+## System Design
+
+* **Normalized Database Schema**
+
+  * Eliminates redundancy by separating:
+
+    * foods (ingredients/dishes)
+    * nutrients
+    * mapping tables (`value_per_100g`)
+
+* Supports easy addition of new nutrients without schema changes
+
+* **Efficient Querying**
+
+  * Single JOIN-based query for aggregation
+  * Prefix-based indexed search for autosuggest
 
 ---
 
 ## Tech Stack
 
 * **Backend:** FastAPI
-* **Database:** MySQL (normalized schema)
+* **Database:** MySQL
 * **Data Processing:** Pandas
 
 ---
 
 ## API Endpoints
 
-* `GET /ingredients/search?q=...`
+* `GET /ingredients/search`
+* `GET /dishes/search`
 * `GET /nutrients`
 * `POST /nutrition/ingredients`
 * `POST /nutrition/dishes`
 
----
-
-## Database Design
-
-Normalized schema:
-
-* `ingredients`, `dishes`
-* `nutrients`
-* Mapping tables for nutrient values (per 100g)
-
----
-
 ## Setup
 
-```bash
+```bash id="9r3u7v"
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
-
-Create `.env` in backend:
-
-```
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=nutrition_db
-```
-
----
-
-## Status
-
-* Ingredient Mode: Completed
-* Dish Mode: Backend ready, data + search pending
-
----
